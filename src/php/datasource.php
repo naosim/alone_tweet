@@ -51,6 +51,18 @@ class ArticleRepositoryImpl implements ArticleRepository {
     return json_decode($text, true);
   }
 
+  private function sortByPublishDateTime(array $json): array {
+    $sortAction = function(array $a, array $b) {
+      $publish = $b[1] - $a[1];
+      if($publish != 0) {
+        return $publish;
+      }
+      return $b[2] - $a[2];
+    };
+    usort($json, $sortAction);
+    return $json;
+  }
+
   public function save(ArticleEntity $entity) {
     $filename = './data/article_list.json';
     $json = $this->load_json();
@@ -60,6 +72,7 @@ class ArticleRepositoryImpl implements ArticleRepository {
       $entity->create_datetime()->getDbValue(),
       $entity->last_update_datetime()->getDbValue()
     );
+    $json = $this->sortByPublishDateTime($json);
     file_put_contents($filename, json_encode($json));
   }
 
@@ -78,6 +91,7 @@ class ArticleRepositoryImpl implements ArticleRepository {
       $entity->create_datetime()->getDbValue(),
       $entity->last_update_datetime()->getDbValue()
     );
+    $newJson = $this->sortByPublishDateTime($newJson);
     file_put_contents($filename, json_encode($newJson));
   }
 
