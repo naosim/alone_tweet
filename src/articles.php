@@ -6,9 +6,63 @@ include_once "./php/loader.php";
 includeFromWeb("https://gist.githubusercontent.com/naosim/b0ef146d683da5b86bbff393444d94be/raw/ValueObject.php");
 includeFromWeb("https://gist.githubusercontent.com/naosim/70ea426a90e8092b62257e76a5fc9495/raw/ApiUtils.php");
 
+class ArraySchema {
+  private $schema;
+  private $params;
+  function __construct($schema, $params) {
+    $this->schema = $schema;
+    $this->params = $params;
+
+  }
+
+  function validate($key) {
+    $s = $this->schema[$key];
+    if($s === null) {
+      throw new RuntimeException("$key is not defined in schema");
+    }
+
+    if($s['is_option'] && !isset($this->params[$key])) {
+      return;
+    }
+
+    if(!$s['is_option'] && !isset($this->params[$key])) {
+      throw new RequestValidationException("$key required");
+    }
+
+    $v = $this->params[$key];
+
+    if($s['validate']) {
+      $msg = $s['get_not_valid_message']($v);
+      if($msg) {
+        throw new RequestValidationException($msg);
+      }
+    }
+  }
+
+  function is(string $key): bool {
+    $this->validate($key);
+    return isset($this->params[$key]);
+  }
+
+  function get(string $key, Closure $map = null) {
+    $this->validate($key);
+    $v = $this->params[$key];
+    if($map == null) {
+      return $v;
+    }
+    return $map($v);
+  }
+}
+
 function main() {
   api_forminput_jsonoutput(
     function(): array {
+      $schema = array(
+        'article_id' => array('is_option'=>true)
+      );
+      $request = ArraySchema($schema ,$_GET);
+
+
       if(isset($_GET['article_id'])) {
         $body = (new ArticleBodyRepositoryImpl())->findById(new ArticleId($_GET['article_id']));
         return array('body' => $body->getValue());
@@ -27,22 +81,7 @@ function main() {
       return $result;
     },
     function(){
-      if(!isset($_POST['body'])) {
-        throw new RequestValidationException('body required');
-      }
-
-      if(!isset($_POST['publish_datetime_unix'])) {
-        throw new RequestValidationException('publish_datetime_unix required');
-      }
-
-      $body = new ArticleBody($_POST['body']);
-
-      $publish_datetime = ArticlePublishDateTime::create_from_unixtimestamp(intval($_POST['publish_datetime_unix']));
-
-      $datetimeFactory = new DateTimeFactory();
-      $service = new NewArticleService(new ArticleRepositoryImpl($datetimeFactory), new ArticleBodyRepositoryImpl(), $datetimeFactory);
-      $id = $service->invoke($body, $publish_datetime);
-      return ResponseUtil::ok(array('article_id'=>$id->getValue()));
+      throw new RequestValidationException('POST not found');
     }
   );
 }
