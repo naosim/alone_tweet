@@ -47,4 +47,13 @@ class UpdateArticleService {
     $this->articleRepository->update($entity);
     $this->articleBodyRepository->update($body_e);
   }
+
+  function updatePublishDateTime(ArticleId $id, ArticlePublishDateTime $publishDateTime) {
+    $entity = $this->articleRepository->findById($id);
+    $current_datetime = $this->dateTimeFactory->createCurrentDateTime();
+
+    $entity = $entity->updatePublishDateTime($publishDateTime, $current_datetime);
+
+    $this->articleRepository->update($entity);
+  }
 }

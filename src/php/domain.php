@@ -62,12 +62,21 @@ class ArticleEntity {
     return $this->last_update_datetime;
   }
 
+  function updatePublishDateTime(ArticlePublishDateTime $publishDateTime, CurrentDateTime $currentDateTime): ArticleEntity {
+    return new ArticleEntity(
+      $this->id,
+      $publishDateTime,// update
+      $this->create_datetime,
+      ArticleLastUpdateDateTime::create($currentDateTime)// update
+    );
+  }
+
   function updateLastUpdateDateTime(CurrentDateTime $currentDateTime): ArticleEntity {
     return new ArticleEntity(
       $this->id,
       $this->publish_date,
       $this->create_datetime,
-      ArticleLastUpdateDateTime::create($currentDateTime)
+      ArticleLastUpdateDateTime::create($currentDateTime)// update
     );
   }
 
