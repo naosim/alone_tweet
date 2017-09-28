@@ -12,15 +12,16 @@ function main() {
       throw new RequestValidationException('GET not found');
     },
     function(){
-      if(!isset($_POST['id'])) {
-        throw new RequestValidationException('body required');
-      }
-      if(!isset($_POST['body'])) {
-        throw new RequestValidationException('body required');
-      }
+      $idDefine = new ArticleIdDefine();
+      $bodyDefine = new ArticleBodyDefine();
+      $schema = new ArraySchema([
+        'id' => $idDefine->schema(),
+        'body' => $bodyDefine->schema()
+      ]);
+      $request = new ArrayValidation($schema ,$_POST);
 
-      $id = new ArticleId($_POST['id']);
-      $body = new ArticleBody($_POST['body']);
+      $id = $idDefine->value($request, 'id');
+      $body = $bodyDefine->value($request, 'body');
 
       $datetimeFactory = new DateTimeFactory();
       $service = new UpdateArticleService(new ArticleRepositoryImpl($datetimeFactory), new ArticleBodyRepositoryImpl(), $datetimeFactory);
