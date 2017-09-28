@@ -3,6 +3,8 @@ include_once "./php/domain.php";
 include_once "./php/datasource.php";
 include_once "./php/service.php";
 include_once "./php/loader.php";
+include_once "./php/infra/api/SchemaTypes.php";
+
 includeFromWeb("https://gist.githubusercontent.com/naosim/b0ef146d683da5b86bbff393444d94be/raw/ValueObject.php");
 includeFromWeb("https://gist.githubusercontent.com/naosim/70ea426a90e8092b62257e76a5fc9495/raw/ApiUtils.php");
 includeFromWeb("https://gist.githubusercontent.com/naosim/af966db032b295711878386fb4dfde08/raw/ArraySchema.php");
@@ -10,17 +12,14 @@ includeFromWeb("https://gist.githubusercontent.com/naosim/af966db032b29571187838
 function main() {
   api_forminput_jsonoutput(
     function(): array {
+      $idDefine = new ArticleIdDefine();
       $schema = new ArraySchema([
-        'id' => [
-          'description' => 'article id',
-          'is_option' => true,
-          'validate' => [Validation::length(24)]
-        ]
+        'id' => $idDefine->schema(SchemaTypes::$option)
       ]);
       $request = new ArrayValidation($schema ,$_GET);
 
       if($request->has('id')) {
-        $id = $request->get('id', function($v) { return new ArticleId($v); });
+        $id = $idDefine->value($request, 'id');
         $body = (new ArticleBodyRepositoryImpl())->findById($id);
         return array('body' => $body->getValue());
       }
