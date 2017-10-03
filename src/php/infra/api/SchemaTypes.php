@@ -44,7 +44,7 @@ class ArticlePublishDateTimeUnixDefine implements SchemaDefine {
   function schema(bool $is_option = false): array {
     return [
       'description' => '[sec], not [msec]',
-      'validate' => [Validation::length(14)]
+      'validate' => [Validation::length(10)]
     ];
   }
 
