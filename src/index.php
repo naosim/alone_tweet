@@ -1,6 +1,6 @@
 <?php
 include_once "./php/infra/AppAuth.php";
-AppAuth::auth();
+// AppAuth::auth();
 header('Content-Type: text/html; charset=utf-8');
 ?>
 

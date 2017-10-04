@@ -11,8 +11,8 @@ includeFromWeb("https://gist.githubusercontent.com/naosim/70ea426a90e8092b62257e
 includeFromWeb("https://gist.githubusercontent.com/naosim/af966db032b295711878386fb4dfde08/raw/ArraySchema.php");
 
 function main() {
-  AppAuth::auth();
-  
+  // AppAuth::auth();
+
   api_forminput_jsonoutput(
     function(): array {
       throw new RequestValidationException('GET not found');
