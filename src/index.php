@@ -1,3 +1,9 @@
+<?php
+include_once "./php/infra/AppAuth.php";
+AppAuth::auth();
+header('Content-Type: text/html; charset=utf-8');
+?>
+
 <!DOCTYPE html>
 
 <div class="main">
